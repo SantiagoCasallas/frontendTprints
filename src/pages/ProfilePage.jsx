@@ -1,31 +1,371 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import BottomNav from "../components/BottomNav.jsx";
+import Header1 from "../components/Header1.jsx";
+import {
+  clearSession,
+  getCurrentUser,
+  isAuthenticated,
+} from "../services/api.js";
+import { getMyOrders } from "../services/orderService.js";
+
+const defaultPhoto =
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80";
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+}
+
+function formatDate(dateValue) {
+  if (!dateValue) {
+    return "Sin fecha";
+  }
+
+  return new Intl.DateTimeFormat("es-CO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date(dateValue));
+}
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
+
+  const user = getCurrentUser();
+
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
+
+  const fullName = user
+    ? `${user.nombres || ""} ${user.apellidos || ""}`.trim()
+    : "Usuario invitado";
+
+  const profileInfo = [
+    {
+      label: "Nombres",
+      value: fullName || "Sin nombre",
+      icon: "person",
+    },
+    {
+      label: "Usuario",
+      value: user?.nombreUsuario || "Sin usuario",
+      icon: "alternate_email",
+    },
+    {
+      label: "Correo",
+      value: user?.correo || "No has iniciado sesión",
+      icon: "mail",
+    },
+    {
+      label: "Roles",
+      value: user?.roles?.join(", ") || "Sin rol",
+      icon: "badge",
+    },
+  ];
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      if (!isAuthenticated()) {
+        setLoadingOrders(false);
+        setOrdersError("Debes iniciar sesión para ver tus pedidos.");
+        return;
+      }
+
+      try {
+        setLoadingOrders(true);
+        setOrdersError("");
+
+        const data = await getMyOrders();
+
+        setOrders(data || []);
+      } catch (error) {
+        setOrdersError(error.message || "No se pudieron cargar los pedidos.");
+      } finally {
+        setLoadingOrders(false);
+      }
+    };
+
+    loadOrders();
+  }, []);
+
+  const handleLogout = () => {
+    clearSession();
+    navigate("/login");
+  };
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display grid place-items-center p-6 pb-28">
-      <div className="max-w-md w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6">
-        <h1 className="text-xl font-bold">Perfil</h1>
-        <p className="mt-2 text-slate-600 dark:text-slate-400">
-          Placeholder. Puedes conectar aquí autenticación (login/registro) y
-          datos del usuario.
-        </p>
-        <div className="mt-4 flex gap-2">
-          <Link
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white font-semibold"
-            to="/login"
-          >
-            Ir a Login
-          </Link>
-          <Link
-            className="inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 px-4 py-2 font-semibold"
-            to="/registro"
-          >
-            Crear cuenta
-          </Link>
-        </div>
-      </div>
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+      <Header1 title="T-Prints" />
+
+      <main className="flex-1 px-4 py-6 pb-28">
+        <section className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[320px_1fr]">
+          <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-col items-center text-center">
+              <div className="h-36 w-36 overflow-hidden rounded-full border-4 border-primary/20 bg-slate-100 shadow-md dark:bg-slate-800">
+                <img
+                  src={defaultPhoto}
+                  alt="Foto de perfil"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+                {fullName}
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {user?.roles?.join(", ") || "Invitado"}
+              </p>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {profileInfo.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/60"
+                >
+                  <span className="material-symbols-outlined text-primary">
+                    {item.icon}
+                  </span>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {item.label}
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {item.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3">
+              <Link
+                to="/registro"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+              >
+                <span className="material-symbols-outlined text-lg">edit</span>
+                Editar perfil
+              </Link>
+
+              {user && (
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-500 transition hover:bg-red-50"
+                >
+                  <span className="material-symbols-outlined text-lg">
+                    logout
+                  </span>
+                  Cerrar sesión
+                </button>
+              )}
+            </div>
+          </aside>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                  Historial
+                </p>
+
+                <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                  Mis pedidos
+                </h1>
+
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                  Aquí puedes consultar los pedidos realizados con tu cuenta.
+                </p>
+              </div>
+
+              <Link
+                to="/productos"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary hover:text-white"
+              >
+                <span className="material-symbols-outlined text-lg">
+                  shopping_bag
+                </span>
+                Comprar más
+              </Link>
+            </div>
+
+            {!user && (
+              <div className="mt-8 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700">
+                No has iniciado sesión. Para ver tus pedidos, entra con tu
+                cuenta.
+              </div>
+            )}
+
+            {loadingOrders && (
+              <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400">
+                Cargando pedidos...
+              </div>
+            )}
+
+            {ordersError && !loadingOrders && (
+              <div className="mt-8 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-600">
+                {ordersError}
+              </div>
+            )}
+
+            {!loadingOrders && !ordersError && orders.length === 0 && (
+              <div className="mt-8 flex min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center dark:border-slate-800 dark:bg-slate-800/40">
+                <span className="material-symbols-outlined text-5xl text-slate-300">
+                  receipt_long
+                </span>
+
+                <h2 className="mt-3 text-lg font-bold text-slate-800 dark:text-white">
+                  Todavía no tienes pedidos
+                </h2>
+
+                <p className="mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
+                  Cuando finalices una compra, el pedido aparecerá en esta
+                  sección.
+                </p>
+
+                <Link
+                  to="/productos"
+                  className="mt-5 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary/90"
+                >
+                  Ver productos
+                </Link>
+              </div>
+            )}
+
+            {!loadingOrders && !ordersError && orders.length > 0 && (
+              <div className="mt-8 space-y-5">
+                {orders.map((order) => (
+                  <article
+                    key={order.idPedido}
+                    className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800"
+                  >
+                    <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-slate-800 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-primary">
+                            receipt_long
+                          </span>
+
+                          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                            Pedido #{order.idPedido}
+                          </h2>
+                        </div>
+
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          {formatDate(order.fechaCreacion)}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-start gap-2 sm:items-end">
+                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
+                          {order.estadoPedido}
+                        </span>
+
+                        <p className="text-xl font-extrabold text-primary">
+                          {formatCurrency(order.total)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+                      <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                          Subtotal
+                        </p>
+                        <p className="mt-1 font-semibold text-slate-700 dark:text-slate-200">
+                          {formatCurrency(order.subtotal)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                          Envío
+                        </p>
+                        <p className="mt-1 font-semibold text-slate-700 dark:text-slate-200">
+                          {formatCurrency(order.costoEnvio)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                          Dirección
+                        </p>
+                        <p className="mt-1 font-semibold text-slate-700 dark:text-slate-200">
+                          {order.direccionEnvio}, {order.ciudadEnvio}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Productos del pedido
+                      </h3>
+
+                      <div className="mt-3 space-y-3">
+                        {(order.items || []).map((item) => (
+                          <div
+                            key={item.idPedidoItem}
+                            className="flex flex-col gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div>
+                              <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                                {item.producto}
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                Color: {item.color} / Talla: {item.talla}
+                              </p>
+
+                              {item.tituloDiseno && (
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                  Diseño: {item.tituloDiseno}
+                                </p>
+                              )}
+
+                              {item.imagenPersonalizadaUrl && (
+                                <a
+                                  href={item.imagenPersonalizadaUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="mt-1 inline-block text-xs font-semibold text-primary hover:underline"
+                                >
+                                  Ver imagen personalizada
+                                </a>
+                              )}
+                            </div>
+
+                            <div className="text-left sm:text-right">
+                              <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                                {formatCurrency(item.subtotal)}
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                Cantidad: {item.cantidad}
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                Unitario: {formatCurrency(item.precioUnitario)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </section>
+      </main>
+
       <BottomNav />
     </div>
   );

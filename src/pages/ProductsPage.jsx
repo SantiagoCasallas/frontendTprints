@@ -1,13 +1,124 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav.jsx";
-import { products } from "../data/products.js";
 import Header1 from "../components/Header1.jsx";
+import { getProducts } from "../services/productService.js";
+import add from "../assets/icons/add.png";
+
+const CART_STORAGE_KEY = "tprints-cart";
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function getStoredCart() {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    return savedCart ? JSON.parse(savedCart) : [];
+  } catch (error) {
+    console.error("No se pudo leer el carrito", error);
+    return [];
+  }
+}
+
+function normalizeProducts(productsFromBackend) {
+  return productsFromBackend.flatMap((product) => {
+    const variantes = product.variantes || [];
+
+    return variantes
+      .filter((variant) => variant.activo)
+      .map((variant) => {
+        const price =
+          Number(product.precioBase || 0) + Number(variant.precioAdicional || 0);
+
+        return {
+          id: variant.idVariante,
+          idProducto: product.idProducto,
+          idVariante: variant.idVariante,
+          name: product.nombre,
+          description: product.descripcion,
+          color: variant.color,
+          size: variant.talla,
+          stock: variant.stock,
+          sku: variant.sku,
+          price,
+          image: variant.imagenUrl,
+        };
+      });
+  });
+}
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const productCards = useMemo(() => normalizeProducts(products), [products]);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getProducts();
+
+        setProducts(data || []);
+      } catch (error) {
+        setError(error.message || "No se pudieron cargar los productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const addToCart = (product) => {
+    const currentCart = getStoredCart();
+
+    const existingProduct = currentCart.find(
+      (item) => item.idVariante === product.idVariante
+    );
+
+    const updatedCart = existingProduct
+      ? currentCart.map((item) =>
+          item.idVariante === product.idVariante
+            ? { ...item, quantity: Number(item.quantity || 1) + 1 }
+            : item
+        )
+      : [
+          ...currentCart,
+          {
+            id: product.idVariante,
+            idProducto: product.idProducto,
+            idVariante: product.idVariante,
+            name: product.name,
+            description: `${product.description || ""} Color: ${
+              product.color
+            } - Talla: ${product.size}`,
+            color: product.color,
+            size: product.size,
+            quantity: 1,
+            price: product.price,
+            image: product.image,
+            stock: product.stock,
+            sku: product.sku,
+          },
+        ];
+
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updatedCart));
+    alert(`${product.name} ${product.color} talla ${product.size} fue agregado al carrito`);
+  };
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
       <Header1 title="T-Prints" />
+
       <main className="flex-1 pb-24">
         <div className="px-4 pt-6 pb-2">
           <h2 className="text-2xl font-bold leading-tight text-slate-900 dark:text-slate-100">
@@ -30,6 +141,7 @@ export default function ProductsPage() {
             >
               <p className="text-sm font-bold tracking-wide">Camisas</p>
             </NavLink>
+
             <NavLink
               to="/disenos"
               className={({ isActive }) =>
@@ -45,34 +157,78 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 p-4">
-          {products.map((p) => (
+        {loading && (
+          <div className="p-4 text-sm text-slate-500">
+            Cargando productos...
+          </div>
+        )}
+
+        {error && (
+          <div className="m-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-600">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && productCards.length === 0 && (
+          <div className="m-4 rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+            No hay productos disponibles.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          {productCards.map((p) => (
             <div
-              key={p.id}
+              key={p.idVariante}
               className="group flex flex-col gap-3 bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <div
                 className="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 bg-center bg-no-repeat bg-cover"
-                style={{ backgroundImage: `url(\"${p.image}\")` }}
+                style={{ backgroundImage: `url("${p.image}")` }}
               >
-                <button className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 transition-colors">
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 transition-colors"
+                >
                   <span className="material-symbols-outlined text-sm">
                     favorite
                   </span>
                 </button>
               </div>
+
               <div className="px-3 pb-4">
                 <p className="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-snug">
                   {p.name}
                 </p>
+
                 <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5">
-                  {p.sizes}
+                  {p.color} / Talla {p.size}
                 </p>
+
+                <p className="text-slate-400 dark:text-slate-500 text-xs font-medium mt-0.5">
+                  Stock: {p.stock}
+                </p>
+
                 <div className="mt-2 flex items-center justify-between">
-                  <p className="text-primary text-sm font-bold">{p.price}</p>
-                  <span className="material-symbols-outlined text-primary text-xl">
-                    add_circle
-                  </span>
+                  <p className="text-primary text-sm font-bold">
+                    {formatCurrency(p.price)}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => addToCart(p)}
+                    disabled={p.stock <= 0}
+                    className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
+                    aria-label={`Agregar ${p.name} al carrito`}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                    <span className="material-symbols-outlined text-xl">
+                      <img
+                        src={add}
+                        alt="Agregar al carrito"
+                        className="w-6 h-6"
+                      />
+                    </span>                    </span>
+                  </button>
                 </div>
               </div>
             </div>

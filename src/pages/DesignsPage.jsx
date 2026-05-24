@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { designs, getStatusBadgeClasses } from '../data/designs.js'
 import BottomNav from '../components/BottomNav.jsx'
 import Header1 from '../components/Header1.jsx'
+import uploadIcon from "../assets/icons/upload.png";
 
 export default function DesignsPage() {
   const navigate = useNavigate()
@@ -15,8 +16,12 @@ export default function DesignsPage() {
   }, [query])
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 flex flex-col">
-   <Header1 title="T-Prints" />
+    <div
+      className="min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 flex flex-col"
+      style={{ filter: 'contrast(125%) brightness(105%) saturate(110%)' }}
+    >
+      <Header1 title="T-Prints" />
+
       <main className="flex-1 max-w-5xl mx-auto w-full p-4 space-y-6 pb-24">
         <section className="container-query">
           <div className="flex flex-col @[480px]:flex-row items-start @[480px]:items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/10 p-5">
@@ -44,9 +49,7 @@ export default function DesignsPage() {
 
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
-              search
-            </span>
+
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -98,14 +101,13 @@ export default function DesignsPage() {
 
         <div className="py-10 text-center">
           <button className="flex items-center justify-center gap-2 mx-auto rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 px-6 py-8 w-full max-w-xs text-slate-500 dark:text-slate-400 hover:border-primary hover:text-primary transition-all">
-            <span className="material-symbols-outlined">add_circle</span>
+           <img src={uploadIcon} alt="Upload" className="w-8 h-8 " />
             <span className="font-semibold">Subir diseño personalizado</span>
           </button>
         </div>
       </main>
-      <BottomNav />
 
-      
+      <BottomNav />
     </div>
   )
 }

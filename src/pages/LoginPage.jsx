@@ -1,9 +1,34 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { loginUser } from "../services/authService.js";
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [identificador, setIdentificador] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await loginUser({
+        identificador,
+        password,
+      });
+
+      navigate("/productos");
+    } catch (error) {
+      setError(error.message || "No se pudo iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
@@ -16,110 +41,96 @@ export default function LoginPage() {
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-primary text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-10">T-Prints</h1>
-        </div>
 
-        <div className="px-8 pt-4 pb-2">
-          <div className="relative w-full aspect-square max-w-[280px] mx-auto bg-primary/5 rounded-full flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent"></div>
-            <div
-              className="w-full h-full bg-center bg-no-repeat bg-contain"
-              style={{
-                backgroundImage:
-                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC306hDpPRBJQ0YHyanZ7pMjknwvJJxKyVDioT_LOmRDYDURwDXUkODF6jz5gtJMnuo3B7j8Pje1L1eSRSu6KbkjJ7M0fweMl-lbKijVbbAywxuRIPUiY1K-ObCju_47ro7tCJkp7EHwB0VXDwxMDxO8V6i3YIhCJ33P1M27zsPlX6aaqhDb0KqYJQmBhO_mFjHghrpPd0JEIGRz4ypRLO8GmqQ_VGGjP4zPlgAZEhVckezn84RdHCreKBZvcvmrErvHVNl4pfZaZJh")',
-              }}
-            ></div>
-          </div>
-          
+          <h1 className="text-primary text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-10">
+            T-Prints
+          </h1>
         </div>
 
         <div className="px-8 pt-6 pb-2 text-center">
-          <h2 className="text-slate-900 dark:text-slate-100 text-3xl font-bold leading-tight">Welcome Back</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">Please enter your details to sign in</p>
+          <h2 className="text-slate-900 dark:text-slate-100 text-3xl font-bold leading-tight">
+            Iniciar sesión
+          </h2>
+
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+            Ingresa tus datos para continuar
+          </p>
         </div>
 
-        <form
-          className="px-8 py-6 space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault()
-            // TODO: conectar auth real.
-            navigate('/productos')
-          }}
-        >
-          <div className="flex flex-col gap-1.5">
-            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">Email</label>
-            <div className="relative group">
-              <input
-                className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
-                placeholder="name@example.com"
-                type="email"
-                required
-              />
+        <form className="px-8 py-6 space-y-5" onSubmit={handleLogin}>
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              {error}
             </div>
+          )}
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Correo o usuario
+            </label>
+
+            <input
+              value={identificador}
+              onChange={(e) => setIdentificador(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Correo o nombre de usuario"
+              type="text"
+              required
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center px-1">
-              <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Password</label>
-            </div>
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Contraseña
+            </label>
+
             <div className="relative flex items-center">
               <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-12 pl-4 pr-12 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
-                placeholder="Enter your password"
-                type={showPassword ? 'text' : 'password'}
+                placeholder="Ingresa tu contraseña"
+                type={showPassword ? "text" : "password"}
                 required
               />
+
               <button
                 className="absolute right-3 text-slate-400 hover:text-primary transition-colors"
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
               >
-                <span className="material-symbols-outlined">visibility</span>
+                <span className="material-symbols-outlined">
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
               </button>
             </div>
           </div>
 
-          <div className="flex justify-end pt-1">
-            <button
-              type="button"
-              className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
-            >
-              Forgot Password?
-            </button>
-          </div>
-
           <button
-            className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4"
+            className="w-full h-12 bg-primary hover:bg-primary/90 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold rounded-lg shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4"
             type="submit"
+            disabled={loading}
           >
-            Log In
+            {loading ? "Ingresando..." : "Ingresar"}
             <span className="material-symbols-outlined text-sm">login</span>
           </button>
         </form>
 
         <div className="px-8 pb-8 text-center">
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            Don&apos;t have an account?
+            ¿No tienes cuenta?
             <Link
               className="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1"
               to="/registro"
             >
-              Sign up
+              Regístrate
             </Link>
           </p>
         </div>
       </div>
-
-      <div className="mt-8 text-slate-400 dark:text-slate-600 text-xs flex gap-4">
-        <button className="hover:text-primary transition-colors" type="button">
-          Privacy Policy
-        </button>
-        <span>•</span>
-        <button className="hover:text-primary transition-colors" type="button">
-          Terms of Service
-        </button>
-      </div>
     </div>
-  )
+  );
 }
