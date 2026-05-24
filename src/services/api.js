@@ -1,5 +1,5 @@
-// conexion a ngrok
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 export const TOKEN_KEY = "tprints-token";
 export const USER_KEY = "tprints-user";
 
@@ -21,6 +21,7 @@ export function getCurrentUser() {
     return null;
   }
 }
+
 export function saveSession(authResponse) {
   localStorage.setItem(TOKEN_KEY, authResponse.token);
 
@@ -33,7 +34,7 @@ export function saveSession(authResponse) {
       correo: authResponse.correo,
       nombreUsuario: authResponse.nombreUsuario,
       roles: authResponse.roles,
-    }),
+    })
   );
 }
 
