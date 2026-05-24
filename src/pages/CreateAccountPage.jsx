@@ -89,11 +89,7 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                person
-              </span>
-
-              <input
+                 <input
                 value={nombres}
                 onChange={(e) => setNombres(e.target.value)}
                 className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
@@ -110,10 +106,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                badge
-              </span>
-
               <input
                 value={apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
@@ -130,10 +122,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                mail
-              </span>
-
               <input
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
@@ -150,10 +138,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                alternate_email
-              </span>
-
               <input
                 value={nombreUsuario}
                 onChange={(e) => setNombreUsuario(e.target.value)}
@@ -171,10 +155,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                call
-              </span>
-
               <input
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
@@ -191,10 +171,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                lock
-              </span>
-
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -212,10 +188,6 @@ export default function CreateAccountPage() {
             </p>
 
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                badge
-              </span>
-
               <select
                 value={rol}
                 onChange={(e) => setRol(e.target.value)}
@@ -227,7 +199,7 @@ export default function CreateAccountPage() {
               </select>
 
               <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                expand_more
+               +
               </span>
             </div>
           </label>
