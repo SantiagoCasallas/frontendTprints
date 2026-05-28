@@ -25,6 +25,21 @@ function getStoredCart() {
   }
 }
 
+
+function formatDriveUrl(url) {
+  if (!url) return "";
+  
+  // Verifica si es un enlace de Google Drive estándar
+  if (url.includes("://google.com")) {
+    // Extrae el ID del archivo que está entre /d/ y /view
+    const match = url.match(/\/d\/([^/]+)/);
+    if (match && match[1]) {
+      return `https://google.com{match[1]}`;
+    }
+  }
+  return url; // Si no es de Drive, deja la URL intacta
+}
+
 function normalizeProducts(productsFromBackend) {
   return productsFromBackend.flatMap((product) => {
     const variantes = product.variantes || [];
@@ -46,7 +61,8 @@ function normalizeProducts(productsFromBackend) {
           stock: variant.stock,
           sku: variant.sku,
           price,
-          image: variant.imagenUrl,
+          // AQUÍ SE APLICA EL CAMBIO:
+          image: formatDriveUrl(variant.imagenUrl), 
         };
       });
   });

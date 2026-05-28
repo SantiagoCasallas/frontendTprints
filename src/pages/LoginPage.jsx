@@ -39,7 +39,7 @@ export default function LoginPage() {
             className="text-primary flex size-10 shrink-0 items-center justify-center hover:bg-primary/10 rounded-full transition-colors cursor-pointer"
             aria-label="Volver"
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+    <span className="material-symbols-outlined">{"<--"}</span>
           </button>
 
           <h1 className="text-primary text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-10">
