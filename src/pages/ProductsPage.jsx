@@ -33,13 +33,13 @@ function getImageUrl(url) {
   const driveFileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
 
   if (driveFileMatch?.[1]) {
-    return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
+    return `https://drive.google.com/thumbnail?id=${driveFileMatch[1]}&sz=w1000`;
   }
 
   const driveOpenMatch = url.match(/[?&]id=([^&]+)/);
 
   if (url.includes("drive.google.com") && driveOpenMatch?.[1]) {
-    return `https://drive.google.com/uc?export=view&id=${driveOpenMatch[1]}`;
+    return `https://drive.google.com/thumbnail?id=${driveOpenMatch[1]}&sz=w1000`;
   }
 
   return url;
@@ -239,18 +239,18 @@ export default function ProductsPage() {
                   </p>
 
                   <button
-  type="button"
-  onClick={() => addToCart(p)}
-  disabled={p.stock <= 0}
-  className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
-  aria-label={`Agregar ${p.name} al carrito`}
->
-  <img
-    src={add}
-    alt="Agregar al carrito"
-    className="w-6 h-6"
-  />
-</button>
+                    type="button"
+                    onClick={() => addToCart(p)}
+                    disabled={p.stock <= 0}
+                    className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
+                    aria-label={`Agregar ${p.name} al carrito`}
+                  >
+                    <img
+                      src={add}
+                      alt="Agregar al carrito"
+                      className="w-6 h-6"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
