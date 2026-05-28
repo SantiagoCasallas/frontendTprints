@@ -2,12 +2,41 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import BottomNav from "../components/BottomNav.jsx";
 import Header1 from "../components/Header1.jsx";
+
+import person from "../assets/icons/profile.png";
+import username from "../assets/icons/username.png";
+import mail from "../assets/icons/mail.png";
+import badge from "../assets/icons/bagde.png";
+import shoppingBag from "../assets/icons/shoppingcart.png";
+import editar from "../assets/icons/editar.png";
+import salir from "../assets/icons/salir.png";
+
 import {
   clearSession,
   getCurrentUser,
   isAuthenticated,
 } from "../services/api.js";
 import { getMyOrders } from "../services/orderService.js";
+
+function getImageUrl(url) {
+  if (!url) {
+    return defaultPhoto;
+  }
+
+  const driveFileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+
+  if (driveFileMatch?.[1]) {
+    return `https://drive.google.com/thumbnail?id=${driveFileMatch[1]}&sz=w1000`;
+  }
+
+  const driveIdMatch = url.match(/[?&]id=([^&]+)/);
+
+  if (url.includes("drive.google.com") && driveIdMatch?.[1]) {
+    return `https://drive.google.com/thumbnail?id=${driveIdMatch[1]}&sz=w1000`;
+  }
+
+  return url;
+}
 
 const defaultPhoto =
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80";
@@ -45,26 +74,28 @@ export default function ProfilePage() {
     ? `${user.nombres || ""} ${user.apellidos || ""}`.trim()
     : "Usuario invitado";
 
+  const profilePhoto = getImageUrl(user?.fotoPerfilUrl);
+
   const profileInfo = [
     {
       label: "Nombres",
       value: fullName || "Sin nombre",
-      icon: "person",
+      icon: person,
     },
     {
       label: "Usuario",
       value: user?.nombreUsuario || "Sin usuario",
-      icon: "alternate_email",
+      icon: username,
     },
     {
       label: "Correo",
       value: user?.correo || "No has iniciado sesión",
-      icon: "mail",
+      icon: mail,
     },
     {
       label: "Roles",
       value: user?.roles?.join(", ") || "Sin rol",
-      icon: "badge",
+      icon: badge,
     },
   ];
 
@@ -103,16 +134,25 @@ export default function ProfilePage() {
       <Header1 title="T-Prints" />
 
       <main className="flex-1 px-4 py-6 pb-28">
-        <section className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[320px_1fr]">
+        <section className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[320px_1fr] pt-14">
           <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex flex-col items-center text-center">
-              <div className="h-36 w-36 overflow-hidden rounded-full border-4 border-primary/20 bg-slate-100 shadow-md dark:bg-slate-800">
+              <a
+                href={profilePhoto}
+                target="_blank"
+                rel="noreferrer"
+                className="block h-36 w-36 overflow-hidden rounded-full border-4 border-primary/20 bg-slate-100 shadow-md transition hover:scale-105 dark:bg-slate-800"
+                title="Abrir foto de perfil"
+              >
                 <img
-                  src={defaultPhoto}
+                  src={profilePhoto}
                   alt="Foto de perfil"
                   className="h-full w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = defaultPhoto;
+                  }}
                 />
-              </div>
+              </a>
 
               <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
                 {fullName}
@@ -129,9 +169,13 @@ export default function ProfilePage() {
                   key={item.label}
                   className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/60"
                 >
-                  <span className="material-symbols-outlined text-primary">
-                    {item.icon}
-                  </span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                    <img
+                      src={item.icon}
+                      alt={item.label}
+                      className="h-5 w-5 object-contain"
+                    />
+                  </div>
 
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -151,8 +195,11 @@ export default function ProfilePage() {
                 to="/registro"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
               >
-                <span className="material-symbols-outlined text-lg">edit</span>
-                Editar perfil
+<img
+  src={editar}
+  alt="editar"
+  className="h-5 w-5 object-contain"
+/>                Editar perfil
               </Link>
 
               {user && (
@@ -160,9 +207,11 @@ export default function ProfilePage() {
                   onClick={handleLogout}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-500 transition hover:bg-red-50"
                 >
-                  <span className="material-symbols-outlined text-lg">
-                    logout
-                  </span>
+<img
+  src={salir}
+  alt="salir"
+  className="h-5 w-5 object-contain"
+/>
                   Cerrar sesión
                 </button>
               )}
@@ -189,9 +238,11 @@ export default function ProfilePage() {
                 to="/productos"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary hover:text-white"
               >
-                <span className="material-symbols-outlined text-lg">
-                  shopping_bag
-                </span>
+                <img
+                  src={shoppingBag}
+                  alt="Comprar más"
+                  className="h-5 w-5 object-contain"
+                />
                 Comprar más
               </Link>
             </div>

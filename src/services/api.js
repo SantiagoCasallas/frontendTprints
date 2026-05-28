@@ -21,7 +21,6 @@ export function getCurrentUser() {
     return null;
   }
 }
-
 export function saveSession(authResponse) {
   localStorage.setItem(TOKEN_KEY, authResponse.token);
 
@@ -33,11 +32,11 @@ export function saveSession(authResponse) {
       apellidos: authResponse.apellidos,
       correo: authResponse.correo,
       nombreUsuario: authResponse.nombreUsuario,
+      fotoPerfilUrl: authResponse.fotoPerfilUrl,
       roles: authResponse.roles,
     })
   );
 }
-
 export function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
