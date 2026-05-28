@@ -25,19 +25,24 @@ function getStoredCart() {
   }
 }
 
-
-function formatDriveUrl(url) {
-  if (!url) return "";
-  
-  // Verifica si es un enlace de Google Drive estándar
-  if (url.includes("://google.com")) {
-    // Extrae el ID del archivo que está entre /d/ y /view
-    const match = url.match(/\/d\/([^/]+)/);
-    if (match && match[1]) {
-      return `https://google.com{match[1]}`;
-    }
+function getImageUrl(url) {
+  if (!url) {
+    return "";
   }
-  return url; // Si no es de Drive, deja la URL intacta
+
+  const driveFileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+
+  if (driveFileMatch?.[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
+  }
+
+  const driveOpenMatch = url.match(/[?&]id=([^&]+)/);
+
+  if (url.includes("drive.google.com") && driveOpenMatch?.[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveOpenMatch[1]}`;
+  }
+
+  return url;
 }
 
 function normalizeProducts(productsFromBackend) {
@@ -48,7 +53,8 @@ function normalizeProducts(productsFromBackend) {
       .filter((variant) => variant.activo)
       .map((variant) => {
         const price =
-          Number(product.precioBase || 0) + Number(variant.precioAdicional || 0);
+          Number(product.precioBase || 0) +
+          Number(variant.precioAdicional || 0);
 
         return {
           id: variant.idVariante,
@@ -61,8 +67,7 @@ function normalizeProducts(productsFromBackend) {
           stock: variant.stock,
           sku: variant.sku,
           price,
-          // AQUÍ SE APLICA EL CAMBIO:
-          image: formatDriveUrl(variant.imagenUrl), 
+          image: getImageUrl(variant.imagenUrl),
         };
       });
   });
@@ -98,14 +103,14 @@ export default function ProductsPage() {
     const currentCart = getStoredCart();
 
     const existingProduct = currentCart.find(
-      (item) => item.idVariante === product.idVariante
+      (item) => item.idVariante === product.idVariante,
     );
 
     const updatedCart = existingProduct
       ? currentCart.map((item) =>
           item.idVariante === product.idVariante
             ? { ...item, quantity: Number(item.quantity || 1) + 1 }
-            : item
+            : item,
         )
       : [
           ...currentCart,
@@ -128,7 +133,9 @@ export default function ProductsPage() {
         ];
 
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updatedCart));
-    alert(`${product.name} ${product.color} talla ${product.size} fue agregado al carrito`);
+    alert(
+      `${product.name} ${product.color} talla ${product.size} fue agregado al carrito`,
+    );
   };
 
   return (
@@ -197,10 +204,12 @@ export default function ProductsPage() {
               key={p.idVariante}
               className="group flex flex-col gap-3 bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
-              <div
-                className="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 bg-center bg-no-repeat bg-cover"
-                style={{ backgroundImage: `url("${p.image}")` }}
-              >
+              <div className="relative w-full aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  className="h-full w-full object-cover"
+                />
                 <button
                   type="button"
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 transition-colors"
@@ -230,21 +239,18 @@ export default function ProductsPage() {
                   </p>
 
                   <button
-                    type="button"
-                    onClick={() => addToCart(p)}
-                    disabled={p.stock <= 0}
-                    className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
-                    aria-label={`Agregar ${p.name} al carrito`}
-                  >
-                    <span className="material-symbols-outlined text-xl">
-                    <span className="material-symbols-outlined text-xl">
-                      <img
-                        src={add}
-                        alt="Agregar al carrito"
-                        className="w-6 h-6"
-                      />
-                    </span>                    </span>
-                  </button>
+  type="button"
+  onClick={() => addToCart(p)}
+  disabled={p.stock <= 0}
+  className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
+  aria-label={`Agregar ${p.name} al carrito`}
+>
+  <img
+    src={add}
+    alt="Agregar al carrito"
+    className="w-6 h-6"
+  />
+</button>
                 </div>
               </div>
             </div>
