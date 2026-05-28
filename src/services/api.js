@@ -51,7 +51,6 @@ export async function apiRequest(path, options = {}) {
   const { method = "GET", body, auth = false, headers = {} } = options;
 
   const requestHeaders = {
-    "ngrok-skip-browser-warning": "true",
     ...headers,
   };
 
