@@ -8,12 +8,12 @@ export default function CreateAccountPage() {
   const [nombres, setNombres] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [correo, setCorreo] = useState("");
+  const [nombreUsuario, setNombreUsuario] = useState("");
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [rol, setRol] = useState("CLIENTE");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [nombreUsuario, setNombreUsuario] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -41,194 +41,163 @@ export default function CreateAccountPage() {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
-      <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
-        <div className="flex items-center bg-transparent p-4 pb-2 justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer"
-            aria-label="Volver"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
+    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-slate-900/50 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div className="relative p-4 flex items-center justify-center">
+  <button
+    onClick={() => navigate(-1)}
+    className="absolute left-4 text-primary flex size-10 shrink-0 items-center justify-center hover:bg-primary/10 rounded-full transition-colors cursor-pointer"
+    aria-label="Volver"
+  >
+    <span className="material-symbols-outlined">{"<--"}</span>
+  </button>
 
-          <div className="flex items-center gap-2">
-            <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
-              <span className="material-symbols-outlined text-lg">print</span>
-            </div>
+  <div className="text-center">
+    <h1 className="text-primary text-xl font-bold leading-tight tracking-tight">
+      T-Prints
+    </h1>
 
-            <span className="font-bold text-xl tracking-tight">T-Prints</span>
-          </div>
+    <h2 className="mt-2 text-slate-900 dark:text-slate-100 text-3xl font-bold leading-tight">
+      Crear cuenta
+    </h2>
+  </div>
+</div>
 
-          <div className="size-12 shrink-0"></div>
-        </div>
 
-        <div className="px-4 pt-8 pb-4">
-          <h1 className="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight">
-            Crear cuenta
-          </h1>
 
-          <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal mt-2">
-            Regístrate para comprar, subir diseños y personalizar camisetas.
-          </p>
-        </div>
-
-        <form
-          className="flex flex-col gap-4 px-4 py-2 max-w-[480px]"
-          onSubmit={handleRegister}
-        >
+        <form className="px-8 py-6 space-y-5" onSubmit={handleRegister}>
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
               {error}
             </div>
           )}
 
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
               Nombres
-            </p>
+            </label>
 
-            <div className="relative">
-                 <input
-                value={nombres}
-                onChange={(e) => setNombres(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="Ingresa tus nombres"
-                type="text"
-                required
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Apellidos
-            </p>
-
-            <div className="relative">
-              <input
-                value={apellidos}
-                onChange={(e) => setApellidos(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="Ingresa tus apellidos"
-                type="text"
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Correo
-            </p>
-
-            <div className="relative">
-              <input
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="Ingresa tu correo"
-                type="email"
-                required
-              />
-            </div>
-          </label>
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Nombre de usuario
-            </p>
-
-            <div className="relative">
-              <input
-                value={nombreUsuario}
-                onChange={(e) => setNombreUsuario(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="Ej: juanvanegas"
-                type="text"
-                required
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Teléfono
-            </p>
-
-            <div className="relative">
-              <input
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="+57 300 123 4567"
-                type="text"
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Contraseña
-            </p>
-
-            <div className="relative">
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 placeholder:text-slate-400 pl-12 pr-4 text-base font-normal leading-normal transition-all"
-                placeholder="Crea una contraseña"
-                type="password"
-                required
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col w-full">
-            <p className="text-slate-900 dark:text-slate-200 text-sm font-semibold leading-normal pb-2 px-1">
-              Rol
-            </p>
-
-            <div className="relative">
-              <select
-                value={rol}
-                onChange={(e) => setRol(e.target.value)}
-                className="form-select flex w-full min-w-0 flex-1 rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-14 pl-12 pr-10 text-base font-normal leading-normal appearance-none transition-all"
-                required
-              >
-                <option value="CLIENTE">Cliente</option>
-                <option value="DISENADOR">Diseñador</option>
-              </select>
-
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-               +
-              </span>
-            </div>
-          </label>
-
-          <div className="pt-2">
-            <button
-              className="w-full h-14 bg-primary hover:bg-primary/90 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
-              type="submit"
-              disabled={loading}
-            >
-              <span>{loading ? "Creando cuenta..." : "Crear cuenta"}</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
+            <input
+              value={nombres}
+              onChange={(e) => setNombres(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Ingresa tus nombres"
+              type="text"
+              required
+            />
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Apellidos
+            </label>
+
+            <input
+              value={apellidos}
+              onChange={(e) => setApellidos(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Ingresa tus apellidos"
+              type="text"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Correo
+            </label>
+
+            <input
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Ingresa tu correo"
+              type="email"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Nombre de usuario
+            </label>
+
+            <input
+              value={nombreUsuario}
+              onChange={(e) => setNombreUsuario(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Ej: juanvanegas"
+              type="text"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Teléfono
+            </label>
+
+            <input
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="+57 300 123 4567"
+              type="text"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Contraseña
+            </label>
+
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              placeholder="Crea una contraseña"
+              type="password"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold px-1">
+              Rol
+            </label>
+
+            <select
+              value={rol}
+              onChange={(e) => setRol(e.target.value)}
+              className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900 dark:text-white"
+              required
+            >
+              <option value="CLIENTE">Cliente</option>
+              <option value="DISENADOR">Diseñador</option>
+            </select>
+          </div>
+
+          <button
+            className="w-full h-12 bg-primary hover:bg-primary/90 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold rounded-lg shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
+    <span className="material-symbols-outlined">{"-->"}</span>
+
+          </button>
         </form>
 
-        <div className="px-4 pb-12 text-center">
-          <p className="text-slate-600 dark:text-slate-400 text-base font-normal">
+        <div className="px-8 pb-8 text-center">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
             ¿Ya tienes cuenta?
             <Link
-              className="text-primary font-bold hover:underline ml-1"
+              className="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1"
               to="/login"
             >
               Inicia sesión
             </Link>
           </p>
         </div>
-
-        <div className="h-8"></div>
       </div>
     </div>
   );
