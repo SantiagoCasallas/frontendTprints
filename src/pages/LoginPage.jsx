@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { loginUser } from "../services/authService.js";
+import visibilitionIcon from "../assets/icons/visibilition.png";
+import visibilitionOffIcon from "../assets/icons/visibilityoff.png";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -31,7 +33,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <div
+      id="Login"
+      className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4"
+    >
       <div className="max-w-md w-full bg-white dark:bg-slate-900/50 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="p-4 flex items-center justify-between">
           <button
@@ -39,7 +44,7 @@ export default function LoginPage() {
             className="text-primary flex size-10 shrink-0 items-center justify-center hover:bg-primary/10 rounded-full transition-colors cursor-pointer"
             aria-label="Volver"
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+            <span className="material-symbols-outlined">{"<--"}</span>
           </button>
 
           <h1 className="text-primary text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-10">
@@ -103,7 +108,17 @@ export default function LoginPage() {
                 }
               >
                 <span className="material-symbols-outlined">
-                  {showPassword ? "visibility_off" : "visibility"}
+                  {showPassword ? <img
+                    src={visibilitionIcon}
+                    alt="visibilidad"
+                    className="h-5 w-5 object-contain"
+                  />    
+                  :
+                  <img
+                    src={visibilitionOffIcon}
+                    alt="visibilidad"
+                    className="h-5 w-5 object-contain"
+                  />   }
                 </span>
               </button>
             </div>
@@ -128,6 +143,17 @@ export default function LoginPage() {
             >
               Regístrate
             </Link>
+          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            Iniciar servidor
+            <a
+              className="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1"
+              href="https://backendtprints.onrender.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              backendtprints.onrender.com
+            </a>
           </p>
         </div>
       </div>
