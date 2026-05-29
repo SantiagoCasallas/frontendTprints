@@ -58,7 +58,10 @@ export default function LoginPage() {
           </h2>
 
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-            Ingresa tus datos para continuar
+            Factores Humanos{" "}
+          </p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+            David Santiago Casallas Reinel - 20202020079
           </p>
         </div>
 
@@ -108,17 +111,19 @@ export default function LoginPage() {
                 }
               >
                 <span className="material-symbols-outlined">
-                  {showPassword ? <img
-                    src={visibilitionIcon}
-                    alt="visibilidad"
-                    className="h-5 w-5 object-contain"
-                  />    
-                  :
-                  <img
-                    src={visibilitionOffIcon}
-                    alt="visibilidad"
-                    className="h-5 w-5 object-contain"
-                  />   }
+                  {showPassword ? (
+                    <img
+                      src={visibilitionIcon}
+                      alt="visibilidad"
+                      className="h-5 w-5 object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={visibilitionOffIcon}
+                      alt="visibilidad"
+                      className="h-5 w-5 object-contain"
+                    />
+                  )}
                 </span>
               </button>
             </div>
@@ -130,7 +135,7 @@ export default function LoginPage() {
             disabled={loading}
           >
             {loading ? "Ingresando..." : "Ingresar"}
-            <span className="material-symbols-outlined text-sm">login</span>
+            <span className="material-symbols-outlined text-sm"></span>
           </button>
         </form>
 

@@ -18,6 +18,9 @@ import {
 } from "../services/api.js";
 import { getMyOrders } from "../services/orderService.js";
 
+const defaultPhoto =
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80";
+
 function getImageUrl(url) {
   if (!url) {
     return defaultPhoto;
@@ -37,9 +40,6 @@ function getImageUrl(url) {
 
   return url;
 }
-
-const defaultPhoto =
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80";
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("es-CO", {
@@ -64,11 +64,25 @@ function formatDate(dateValue) {
 export default function ProfilePage() {
   const navigate = useNavigate();
 
-  const user = getCurrentUser();
+  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
 
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [ordersError, setOrdersError] = useState("");
+
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState("");
+
+  const [editForm, setEditForm] = useState({
+    nombres: "",
+    apellidos: "",
+    nombreUsuario: "",
+    correo: "",
+    telefono: "",
+    fotoPerfilUrl: "",
+  });
+
+  const user = currentUser;
 
   const fullName = user
     ? `${user.nombres || ""} ${user.apellidos || ""}`.trim()
@@ -123,6 +137,57 @@ export default function ProfilePage() {
 
     loadOrders();
   }, []);
+
+  const openEditProfile = () => {
+    if (!user) {
+      return;
+    }
+
+    setProfileMessage("");
+
+    setEditForm({
+      nombres: user.nombres || "",
+      apellidos: user.apellidos || "",
+      nombreUsuario: user.nombreUsuario || "",
+      correo: user.correo || "",
+      telefono: user.telefono || "",
+      fotoPerfilUrl: user.fotoPerfilUrl || "",
+    });
+
+    setShowEditProfile(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+
+    const updatedUser = {
+      ...user,
+      ...editForm,
+    };
+
+    setCurrentUser(updatedUser);
+    setShowEditProfile(false);
+    setProfileMessage("Perfil actualizado en la vista actual.");
+
+    /*
+      Aquí puedes conectar el endpoint real del backend.
+
+      Ejemplo:
+      await updateMyProfile(editForm);
+
+      También puedes actualizar el localStorage aquí si tu sesión guarda
+      el usuario directamente en localStorage.
+    */
+  };
 
   const handleLogout = () => {
     clearSession();
@@ -191,27 +256,36 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-6 flex flex-col gap-3">
-              <Link
-                to="/registro"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+              <button
+                type="button"
+                onClick={openEditProfile}
+                disabled={!user}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90 disabled:bg-slate-300 disabled:cursor-not-allowed"
               >
-<img
-  src={editar}
-  alt="editar"
-  className="h-5 w-5 object-contain"
-/>                Editar perfil
-              </Link>
+                <img
+                  src={editar}
+                  alt="editar"
+                  className="h-5 w-5 object-contain"
+                />
+                Editar perfil
+              </button>
+
+              {profileMessage && (
+                <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                  {profileMessage}
+                </div>
+              )}
 
               {user && (
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-bold text-red-500 transition hover:bg-red-50"
                 >
-<img
-  src={salir}
-  alt="salir"
-  className="h-5 w-5 object-contain"
-/>
+                  <img
+                    src={salir}
+                    alt="salir"
+                    className="h-5 w-5 object-contain"
+                  />
                   Cerrar sesión
                 </button>
               )}
@@ -416,6 +490,172 @@ export default function ProfilePage() {
           </section>
         </section>
       </main>
+
+      {showEditProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-start justify-between border-b border-slate-200 p-5 dark:border-slate-800">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                  Perfil
+                </p>
+
+                <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                  Editar perfil
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Actualiza la información visible de tu cuenta.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowEditProfile(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleSaveProfile}
+              className="max-h-[75vh] space-y-4 overflow-y-auto p-5"
+            >
+              <div className="flex items-center gap-4 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/60">
+                <img
+                  src={getImageUrl(editForm.fotoPerfilUrl)}
+                  alt="Vista previa perfil"
+                  className="h-20 w-20 rounded-full object-cover border-4 border-primary/20"
+                  onError={(e) => {
+                    e.currentTarget.src = defaultPhoto;
+                  }}
+                />
+
+                <div>
+                  <p className="text-sm font-bold text-slate-800 dark:text-white">
+                    Vista previa
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Puedes pegar una URL normal o una URL de Google Drive.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Nombres
+                  </label>
+
+                  <input
+                    name="nombres"
+                    value={editForm.nombres}
+                    onChange={handleEditChange}
+                    className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                    placeholder="Tus nombres"
+                    type="text"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Apellidos
+                  </label>
+
+                  <input
+                    name="apellidos"
+                    value={editForm.apellidos}
+                    onChange={handleEditChange}
+                    className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                    placeholder="Tus apellidos"
+                    type="text"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Nombre de usuario
+                </label>
+
+                <input
+                  name="nombreUsuario"
+                  value={editForm.nombreUsuario}
+                  onChange={handleEditChange}
+                  className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                  placeholder="Ej: juanvanegas"
+                  type="text"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Correo
+                </label>
+
+                <input
+                  name="correo"
+                  value={editForm.correo}
+                  onChange={handleEditChange}
+                  className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                  placeholder="correo@ejemplo.com"
+                  type="email"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Teléfono
+                </label>
+
+                <input
+                  name="telefono"
+                  value={editForm.telefono}
+                  onChange={handleEditChange}
+                  className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                  placeholder="+57 300 123 4567"
+                  type="text"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Foto de perfil URL
+                </label>
+
+                <input
+                  name="fotoPerfilUrl"
+                  value={editForm.fotoPerfilUrl}
+                  onChange={handleEditChange}
+                  className="h-12 rounded-lg border border-slate-200 bg-slate-50 px-4 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                  placeholder="https://..."
+                  type="text"
+                />
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowEditProfile(false)}
+                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
