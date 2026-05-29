@@ -308,7 +308,7 @@ export default function ProductsPage() {
 
             {cartToast.type === "success" && (
               <NavLink
-                to="/carrito"
+                to="/pedidos"
                 className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-primary/90"
               >
                 Ver carrito
