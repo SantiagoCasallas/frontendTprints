@@ -1,9 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BottomNav from "../components/BottomNav.jsx";
 import Header1 from "../components/Header1.jsx";
 import { getProducts } from "../services/productService.js";
 import add from "../assets/icons/add.png";
+import check from "../assets/icons/check.png";
+import error from "../assets/icons/error.png";
 
 const CART_STORAGE_KEY = "tprints-cart";
 
@@ -57,6 +59,9 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [cartToast, setCartToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
   const productCards = useMemo(() => normalizeProducts(products), [products]);
 
   useEffect(() => {
@@ -78,12 +83,46 @@ export default function ProductsPage() {
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const showToast = ({ type = "success", title, message }) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+
+    setCartToast({
+      type,
+      title,
+      message,
+    });
+
+    toastTimeoutRef.current = setTimeout(() => {
+      setCartToast(null);
+    }, 2800);
+  };
+
   const addToCart = (product) => {
     const currentCart = getStoredCart();
 
     const existingProduct = currentCart.find(
       (item) => item.idVariante === product.idVariante
     );
+
+    if (existingProduct && Number(existingProduct.quantity || 1) >= product.stock) {
+      showToast({
+        type: "error",
+        title: "Stock no disponible",
+        message: `No hay más unidades disponibles de ${product.name} ${product.color} talla ${product.size}.`,
+      });
+
+      return;
+    }
 
     const updatedCart = existingProduct
       ? currentCart.map((item) =>
@@ -112,7 +151,12 @@ export default function ProductsPage() {
         ];
 
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updatedCart));
-    alert(`${product.name} ${product.color} talla ${product.size} fue agregado al carrito`);
+
+    showToast({
+      type: "success",
+      title: "Producto agregado",
+      message: `${product.name} ${product.color} talla ${product.size} fue agregado al carrito.`,
+    });
   };
 
   return (
@@ -185,14 +229,7 @@ export default function ProductsPage() {
                 className="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 bg-center bg-no-repeat bg-cover"
                 style={{ backgroundImage: `url("${p.image}")` }}
               >
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    favorite
-                  </span>
-                </button>
+    
               </div>
 
               <div className="px-3 pb-4">
@@ -220,14 +257,11 @@ export default function ProductsPage() {
                     className="rounded-full text-primary transition hover:scale-110 disabled:text-slate-300 disabled:cursor-not-allowed"
                     aria-label={`Agregar ${p.name} al carrito`}
                   >
-                    <span className="material-symbols-outlined text-xl">
-                    <span className="material-symbols-outlined text-xl">
-                      <img
-                        src={add}
-                        alt="Agregar al carrito"
-                        className="w-6 h-6"
-                      />
-                    </span>                    </span>
+                    <img
+                      src={add}
+                      alt="Agregar al carrito"
+                      className="w-6 h-6"
+                    />
                   </button>
                 </div>
               </div>
@@ -235,6 +269,63 @@ export default function ProductsPage() {
           ))}
         </div>
       </main>
+
+      {cartToast && (
+        <div className="fixed bottom-24 left-1/2 z-50 w-[92%] max-w-md -translate-x-1/2 animate-[fadeIn_0.2s_ease-out] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                cartToast.type === "success"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              <span className="material-symbols-outlined text-xl">
+                {cartToast.type === "success" ? 
+                                    <img
+                      src={check}
+                      alt="Agregar al carrito"
+                      className="w-6 h-6"
+                    /> 
+                :
+                                     <img
+                      src={error}
+                      alt="Agregar al carrito"
+                      className="w-6 h-6"
+                    />}
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-slate-900 dark:text-white">
+                {cartToast.title}
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                {cartToast.message}
+              </p>
+            </div>
+
+            {cartToast.type === "success" && (
+              <NavLink
+                to="/carrito"
+                className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-primary/90"
+              >
+                Ver carrito
+              </NavLink>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setCartToast(null)}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+              aria-label="Cerrar notificación"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
